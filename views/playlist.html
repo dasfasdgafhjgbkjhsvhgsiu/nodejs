@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js"></script>
+    <title>Document</title>
+</head>
+<body onload="mape()">
+    <center>
+        <h1>Playlists</h1>
+        <div id="playlist"></div>
+        <!--naredi kodo ki kot gumbe naredi playliste po mapaha
+        ko klikneš na gumb se ti pokažejo vsi komadi ki so v playlistu in jih lahko predvajaš
+        -->
+    </center>
+    <footer>
+        <img width="64" height="64" src="icons/home.png" onclick="odpri('index')" alt="home"/>
+        <img width="60" height="60" src="icons/search.png" onclick="odpri('search')" alt="search"/>
+        <img width="64" height="64" src="icons/playlist.png" onclick="odpri('playlist')" alt="video-playlist"/>
+        <img width="64" height="64" src="icons/account.png" onclick="odpri('account')" alt="guest-male"/>
+    </footer>
+
+    <script>
+        function mape(){
+            $("#playlist").empty();
+            console.log("izvaja");
+
+    // Fetch vseh imen map iz mape /pesmi
+    fetch("/vse-mape")
+        .then(response => response.json())
+        .then(data => {
+            // Iteriraj skozi vsako ime mape in ga dodaj v element #mape
+            data.forEach(mapa => {
+                var gumb=document.createElement("button");
+                gumb.setAttribute("onclick","prikaziPesmi('"+mapa+"')");
+                gumb.setAttribute("id","mapa");
+                gumb.textContent=mapa;
+                $("#playlist").append(gumb);
+                $("#playlist").append("<br>");
+            });
+        })
+        .catch(error => {
+            console.error("Napaka pri pridobivanju imen map:", error);
+        });
+
+        
+        }
+
+        function prikaziPesmi(playlist) {
+            window.location.href = `/pesmi.html?playlist=${playlist}`;
+        }
+    </script>
+
+</body>
+</html>

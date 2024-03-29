@@ -1,0 +1,77 @@
+<!-- pesmi.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js"></script>
+    <title>Pesmi</title>
+</head>
+<body>
+    
+        <h1>Pesmi v playlistu</h1>
+        
+        <div id="sredina">
+        
+        <ul type="none" id="pesmi-lista"></ul>
+
+</div>
+
+
+    <input id="pika" class="slider" type="range">
+
+    
+     <div id="bu">
+        <center>
+        <img id="back"  src="icons/back.png" onclick="back()" alt="search"/>
+        <img id="play" src="icons/play.png" onclick="odl()" alt="video-playlist"/>
+        <img id="next" src="icons/next.png" onclick="naslednja()" alt="guest-male"/>
+        </center>
+     </div>
+   
+    <footer>
+        <img width="64" height="64" src="icons/home.png" onclick="odpri('index')" alt="home"/>
+        <img width="60" height="60" src="icons/search.png" onclick="odpri('search')" alt="search"/>
+        <img width="64" height="64" src="icons/playlist.png" onclick="odpri('playlist')" alt="video-playlist"/>
+        <img width="64" height="64" src="icons/account.png" onclick="odpri('account')" alt="guest-male"/>
+    </footer>
+
+    <script>
+        // Funkcija za pridobitev imena izbranega playlista iz URL-ja
+        function pridobiImePlaylistaIzURLja() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('playlist');
+        }
+
+        // Funkcija za prikaz pesmi v izbranem playlistu
+        function prikaziPesmi() {
+            const izbranPlaylist = pridobiImePlaylistaIzURLja();
+
+            // Fetch za pridobitev pesmi iz strežnika
+            fetch(`/pesmi/${izbranPlaylist}`)
+                .then(response => response.json())
+                .then(data => {
+                    const pesmiLista = document.getElementById("pesmi-lista");
+                    pesmiLista.innerHTML = ""; // Počisti seznam pred dodajanjem novih pesmi
+                    pesmi = data; // Shrani pesmi v globalno spremenljivko pesmi
+                    data.forEach(pesem => {
+                        const pesemElement = document.createElement("li");
+                        pesemElement.textContent = pesem;
+                        pesmiLista.appendChild(pesemElement);
+                    });
+                    shrani(data, izbranPlaylist);
+                })
+                .catch(error => console.error("Napaka pri pridobivanju pesmi:", error));
+
+            // Pošlji pesmi v funkcijo za shranjevanje
+            
+        }
+
+        // Prikaz pesmi v playlistu se izvede ob nalaganju strani
+        prikaziPesmi();
+    </script>
+</body>
+</html>

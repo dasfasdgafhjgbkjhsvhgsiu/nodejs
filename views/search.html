@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js"></script>
+    <title>Document</title>
+
+    <script>
+
+    
+        $(document).ready(function(){
+            var API_KEY = "AIzaSyDJwX7SIDJHmvK1Bc66dLcTmkfzCNgKh88";
+            var videosContainer = $("#videos");
+        
+            $("#formm").submit(function(event) {
+                event.preventDefault(); // Prepreči privzeto vedenje obrazca
+                console.log("deluje");
+                var search = $("#search").val();
+                videoSearch(API_KEY, search, 20);
+            });
+        
+            function videoSearch(key, search, maxResults) {
+                $.get("https://www.googleapis.com/youtube/v3/search?key=" + key + "&type=video&part=snippet&maxResults=" + maxResults + "&q=" + search, function(data) {
+                    console.log(data);
+        
+                    data.items.forEach(item => {
+                        embedVideo(item.id.videoId, item.snippet.title); // Kličemo funkcijo embedVideo za vsak vdelljiv videoposnetek
+                    });
+                });
+            }
+        
+            function embedVideo(videoId, videoTitle) {
+                
+                var iframe = document.createElement("iframe");
+                iframe.src = "https://www.youtube.com/embed/" + videoId;
+                iframe.width = "320";
+                iframe.height = "215";
+                iframe.frameBorder = "0";
+                iframe.allowFullscreen = true;
+                videosContainer.append(iframe);
+                videosContainer.append(document.createElement("br"));
+                /*
+        
+                var slika=document.createElement("img");
+                slika.src = "https://i.ytimg.com/vi/" + videoId + "/hqdefault.jpg";
+                slika.width = "320";
+                slika.height = "215";
+        
+                videosContainer.append(slika);
+        */
+                videosContainer.append(createButton(videoId, videoTitle));
+            }
+        
+            function createButton(videoId, videoTitle) {
+        
+                var gumb=document.createElement("button");
+                gumb.setAttribute("type","button");
+                gumb.setAttribute("onclick", "submitForm('"+videoId+"')");
+                gumb.setAttribute("id","convert-btn");
+                gumb.setAttribute("class","pl");
+                gumb.textContent=videoTitle;
+        
+                return gumb;
+            }
+                /*
+                var button = $("<button>");
+                button.text(videoTitle);
+                button.css("width", "320px");
+                button.addClass("convert-btn");
+                button.data("video-id", videoId);
+                button.click(function(event) {
+                    event.preventDefault(); // Prepreči privzeto obnašanje obrazca
+                    var videoUrl = $(this).data("video-id");
+                    potegni(videoUrl);
+                });
+                return button;
+            }
+        
+            function potegni(videoUrl) {
+                $.get(`/convert-mp3?videoID=${videoUrl}`, function(response) {
+                    console.log(response); // Tukaj lahko obdelate odgovor iz strežnika
+                });
+            }
+            */
+        
+        
+            
+        });
+        
+            </script>
+
+</head>
+<body>
+    <center>
+        <div class="container">
+            <br><br>
+          <h1>DOWLOAD SONG</h1>
+            <form id="formm">
+                <div class="form-group">
+                    <input type="text" class="form-control" id="search">
+                </div>
+                <div class="form-group">
+                    <input type="submit" class="btn btn-danger" id="isci" value="Išči">
+                </div>
+            </form>
+            <div class="row">
+                <div class="col-md-12">
+                    <form action="/submit" method="POST" id="form">
+                    </form>
+                        <div id="videos">
+                  <!--     <a href="/test">test.ejs</a>-->
+                    </div>
+                    
+                </div>
+            </div>
+
+            <div class="overlay" id="overlay">
+                <div class="overlay-content">
+                    <button onclick="zapri()" id="cancle">X</button>
+                  <h3>DODAJ V PLAYLIST</h3>
+                  <div id="mape"></div>
+                 
+                  <button onclick="ustvari()" id="nov" class="button1" style="width: 100%;"><b>NEW PLAYLIST</b></button>
+                  <input type="text" id="ime" name="imeMape">
+                  <button id="novo" class="button1" onclick="novipl()"><b>USTVARI IN SHRANI</b></button>
+                  <br><br>
+                  <div id="opozorilo"></div>
+                </div>
+              </div>
+    
+        </div>
+    </center>
+        <script>
+var idvido="";
+function novipl() {
+            const imeNoveMape = document.getElementById("ime").value;
+
+            fetch("/novipl", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ imeNoveMape: imeNoveMape })
+            })
+            .then(response => response.text())
+            .then(message => {
+              //  alert(message);
+                posli(imeNoveMape);
+            })
+            .catch(error => {
+                console.error("Napaka:", error);
+            });
+            
+        }
+
+        
+
+        function zapri(){
+            document.getElementById("overlay").style.display="none";
+        }
+
+       function submitForm(videoId) {
+       // event.preventDefault();
+        document.getElementById("overlay").style.display="block";
+            idvido=videoId;
+
+ $("#mape").empty();
+
+    // Fetch vseh imen map iz mape /pesmi
+    fetch("/vse-mape")
+        .then(response => response.json())
+        .then(data => {
+            // Iteriraj skozi vsako ime mape in ga dodaj v element #mape
+            data.forEach(mapa => {
+                var gumb=document.createElement("button");
+                gumb.setAttribute("onclick","posli('"+mapa+"')");
+                gumb.setAttribute("id","pl");
+                gumb.textContent=mapa;
+                $("#mape").append(gumb);
+                $("#mape").append("<br>");
+            });
+        })
+        .catch(error => {
+            console.error("Napaka pri pridobivanju imen map:", error);
+        });
+
+        }
+
+        function ustvari(){
+    document.getElementById("ime").style.display="block";
+    document.getElementById("novo").style.display="block";
+    document.getElementById("nov").style.display="none";
+   
+}
+
+        function posli(imemape){
+            var form = document.getElementById("form");
+            var input = document.createElement("input");
+            var i=document.createElement("input");
+            i.setAttribute("type", "hidden");
+            i.setAttribute("name", "imemape");
+            i.setAttribute("value", imemape);
+            input.setAttribute("type", "hidden");
+            input.setAttribute("name", "buttonName");
+            input.setAttribute("value", idvido);
+            form.appendChild(input);
+            form.appendChild(i);
+            form.submit();
+        }
+        </script>
+    <footer>
+        <img width="64" height="64" src="icons/home.png" onclick="odpri('index')" alt="home"/>
+        <img width="60" height="60" src="icons/search.png" onclick="odpri('search')" alt="search"/>
+        <img width="64" height="64" src="icons/playlist.png" onclick="odpri('playlist')" alt="video-playlist"/>
+        <img width="64" height="64" src="icons/account.png" onclick="odpri('account')" alt="guest-male"/>
+    </footer>
+</body>
+</html>
